@@ -26,16 +26,16 @@ $
     crawl (["Tun dun dun, da da dun, da da dun ...", "Couldn't find the repo, the repo!"])
 
   (repo) commits link =
-    user slash repo = repo.replace r/.*github.com[\/:](.*?)(\.git)?$/ '$1'
+    user slash repo = repo.replace r/.*stash.finn.no[\/:](.*?)(\.git)?$/ '$1'
     {
-      url = "https://api.github.com/repos/#(user slash repo)/commits"
+      url = "https://git.finn.no/rest/api/1.0/projects/#(user slash repo)/commits"
       hash_tag = "##(user slash repo)"
     }
 
   get repo url from hash () =
     match = window.location.hash.match r/#(.*?)\/(.*?)$/
     if (match)
-      "https://api.github.com/repos/#(match.1)/#(match.2)/commits"
+      "https://git.finn.no/rest/api/1.0/projects/#(match.1)/repos/#(match.2)/commits"
 
   $(document).on (animation end) '.content'
     $(this).remove()
@@ -46,7 +46,7 @@ $
     $ '.plane'.show()
     commits fetch.done @(response)
       if (response.data :: Array)
-        messages = [record.commit.message, where: record <- response.data]
+        messages = [record.message, where: record <- response.data.values]
         play commit (messages)
       else
         console.log(response)
@@ -56,7 +56,7 @@ $
       play error()
 
   if (url = get repo url from hash())
-    commits fetch := $.ajax (url) { data type = 'jsonp' }
+    commits fetch := $.ajax (url) { data type = 'jsonp', jsonp = "jsonp-callback" }
     show response()
   else
     $ '.input'.on (transition end)
@@ -67,7 +67,7 @@ $
         repo = ($(this).val()) commits link
 
         window.history.pushState(nil, nil, "#(repo.hash_tag)")
-        commits fetch := $.ajax (repo.url) { data type = 'jsonp' }
+        commits fetch := $.ajax (repo.url) { data type = 'jsonp', jsonp = "jsonp-callback" }
 
         document.get element by id 'falcon_fly'.play()
         $(this).parent().add class 'zoomed'
