@@ -28,7 +28,7 @@ Leave it autocompile:
 
 Serve project folder:
 
-    $ npm install -g serve
-    $ serve
+    $ npm install -g node-static
+    $ static
 
 Navigate to http://localhost:3000/starlogs.html and take it from there!
